@@ -10,7 +10,7 @@ namespace _5._1
     /// </summary>
     public partial class MainWindow : Window
     {
-        private IMeasuringDevice device;
+        private IEventEnabledMeasuringDevice device;
         private Units unit = Units.Imperial;
         public MainWindow() => InitializeComponent();
         private EventHandler newMeasurementTaken;
@@ -39,8 +39,12 @@ namespace _5._1
         {
             logs.Content = "Please make device";
             if (device != null) 
-            { 
+            {
+                // Инициализация делегата, который будет вызывать обработчик события при каждом новом измерении
+                newMeasurementTaken = new EventHandler(device_NewMeasurementTaken);
 
+                // Привязка делегата к событию NewMeasurementTaken устройства
+                device.NewMeasurementTaken += newMeasurementTaken;
                 device.StartCollecting();
                 logs.Content = "Start Collecting";
             }
@@ -97,7 +101,23 @@ namespace _5._1
             if (device != null)
             {
                 device.StopCollecting();
+                device.NewMeasurementTaken -= newMeasurementTaken;
                 logs.Content = $"Device stop collecting";
+            }
+        }
+        /// <summary>
+        /// Обработчик для не пойми чего(зааааааааааааааааачем блять это нужно???)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void device_NewMeasurementTaken(object sender, EventArgs e)
+        {
+            logs.Content = "Please make device";
+            if (device != null)
+            {
+                StringBuilder res = new StringBuilder();
+                foreach (int i in device.GetRawData()) { res.Append($"{i} "); }
+                logs.Content = res.ToString();
             }
         }
     }

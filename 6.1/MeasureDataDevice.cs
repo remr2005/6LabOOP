@@ -8,28 +8,70 @@ namespace MeasureLengthDeviceNamespace
 {
     public abstract class MeasureDataDevice : IEventEnabledMeasuringDevice
     {
+        /// <summary>
+        /// Используемый юнит
+        /// </summary>
         protected Units unitsToUse;
+        /// <summary>
+        /// Захваченная инфа
+        /// </summary>
         protected int[] dataCaptured;
+        /// <summary>
+        /// Последнее измерение
+        /// </summary>
         protected int mostRecentMeasure;
+        /// <summary>
+        /// Котролер
+        /// </summary>
         protected DeviceController? controller;
+        /// <summary>
+        /// Тип девайса
+        /// </summary>
         protected abstract DeviceType measurementType { get; }
-
+        /// <summary>
+        /// Он занимается захватом данных
+        /// </summary>
         private BackgroundWorker? dataCollector;
+        /// <summary>
+        /// Нужно для записи логов в файл
+        /// </summary>
         private StreamWriter? loggingFileWriter;
+        /// <summary>
+        /// ГОСПОДИ
+        /// </summary>
         public event EventHandler? NewMeasurementTaken;
+        /// <summary>
+        /// Что это
+        /// </summary>
         public event HeartBeatEventHandler HeartBeat;
+        /// <summary>
+        /// Уничтожен объект или нет
+        /// </summary>
         bool disposed = false;
-        // Интервал для HeartBeat
+        /// <summary>
+        /// что это?
+        /// </summary>
         public int HeartBeatInterval { get; private set; }
-
-        // Абстрактные методы для конкретных устройств
+        /// <summary>
+        /// Я это даже не использовал, ЗАЧЕМ ЭТО НУЖНО
+        /// </summary>
+        /// <returns></returns>
         public abstract decimal MetricValue();
+        /// <summary>
+        /// Возвращает МЕтрический результат
+        /// </summary>
+        /// <returns></returns>
         public abstract decimal ImperialValue();
-
+        /// <summary>
+        /// Когда новая функция
+        /// </summary>
         protected virtual void OnNewMeasurementTaken()
         {
             NewMeasurementTaken?.Invoke(this, EventArgs.Empty);
         }
+        /// <summary>
+        /// Начинает генерацию
+        /// </summary>
         public void StartCollecting()
         {
             controller = DeviceController.StartDevice(measurementType);
@@ -37,7 +79,9 @@ namespace MeasureLengthDeviceNamespace
             loggingFileWriter = new StreamWriter(GetLoggingFile());
             loggingFileWriter.WriteLine($"Time: {DateTime.Now}, Start Collecting");
         }
-
+        /// <summary>
+        /// Останавливает генерацию
+        /// </summary>
         public void StopCollecting()
         {
             if (controller != null)
@@ -52,13 +96,17 @@ namespace MeasureLengthDeviceNamespace
                 }
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public int[] GetRawData()
         {
             return dataCaptured;
         }
-
-        // Метод для получения измерений
+        /// <summary>
+        /// 
+        /// </summary>
         private void GetMeasurements()
         {
             dataCollector = new BackgroundWorker
@@ -70,7 +118,11 @@ namespace MeasureLengthDeviceNamespace
             dataCollector.ProgressChanged += dataCollector_ProgressChanged;
             dataCollector.RunWorkerAsync();
         }
-
+        /// <summary>
+        /// захватывает инфу(это какой то ужас)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void dataCollector_DoWork(object sender, DoWorkEventArgs e)
         {
             dataCaptured = new int[10];
@@ -89,10 +141,18 @@ namespace MeasureLengthDeviceNamespace
             }
 
         }
+        /// <summary>
+        /// Когда что то меняется
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void dataCollector_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             OnNewMeasurementTaken();
         }
+        /// <summary>
+        /// Уничтожает, ну или делает вид что уничтожает MeasureDataDevice
+        /// </summary>
         public void Dispose()
         {
             // Проверяем, что BackgroundWorker не null
@@ -106,15 +166,30 @@ namespace MeasureLengthDeviceNamespace
             loggingFileWriter?.WriteLine($"Time: {DateTime.Now}, Dispose");
             loggingFileWriter?.Close();
         }
+        /// <summary>
+        /// Путь до файла с логгированием
+        /// </summary>
+        /// <returns>Возвращает название файла логированния</returns>
         public string GetLoggingFile()
         {
             // Возвращаем путь к лог-файлу
             return $"{LoggingFileName}.log";
         }
-
+        /// <summary>
+        /// Сгенеренная инфа
+        /// </summary>
         public int[] DataCaptured => dataCaptured;
+        /// <summary>
+        /// Юнит который используется
+        /// </summary>
         public Units UnitsToUse => unitsToUse;
+        /// <summary>
+        /// Последнее измерение
+        /// </summary>
         public int MostRecentMeasure => mostRecentMeasure;
+        /// <summary>
+        /// имя файла для логгинга
+        /// </summary>
         public string? LoggingFileName { get; set; }
     }
 }
