@@ -18,7 +18,7 @@ namespace MeasureLengthDeviceNamespace
         private StreamWriter? loggingFileWriter;
         public event EventHandler? NewMeasurementTaken;
         public event HeartBeatEventHandler HeartBeat;
-
+        bool disposed = false;
         // Интервал для HeartBeat
         public int HeartBeatInterval { get; private set; }
 
@@ -46,6 +46,10 @@ namespace MeasureLengthDeviceNamespace
                 controller = null;
                 loggingFileWriter?.WriteLine($"Time: {DateTime.Now}, Stop Collecting");
                 loggingFileWriter.Close();
+                if (dataCollector != null && dataCollector.IsBusy)
+                {
+                    dataCollector.CancelAsync(); // Запрос на отмену
+                }
             }
         }
 
@@ -57,7 +61,11 @@ namespace MeasureLengthDeviceNamespace
         // Метод для получения измерений
         private void GetMeasurements()
         {
-            dataCollector = new BackgroundWorker();
+            dataCollector = new BackgroundWorker
+            {
+                WorkerSupportsCancellation=true,
+                WorkerReportsProgress=true,
+            };
             dataCollector.DoWork += dataCollector_DoWork;
             dataCollector.ProgressChanged += dataCollector_ProgressChanged;
             dataCollector.RunWorkerAsync();
@@ -69,12 +77,14 @@ namespace MeasureLengthDeviceNamespace
             int i = 0;
             while (!dataCollector.CancellationPending)
             {
+                if (disposed) break;
                 // Получаем новое измерение от контроллера и сохраняем его в массив
                 dataCaptured[i % 10] = DeviceController.TakeMeasurement();
                 // Обновляем последнее измерение
                 mostRecentMeasure = dataCaptured[i % 10];
                 loggingFileWriter?.WriteLine($"Time: {DateTime.Now}, collect {mostRecentMeasure}");
                 i++;
+                dataCollector.ReportProgress(0);
                 System.Threading.Thread.Sleep(1000);
             }
 
@@ -88,6 +98,7 @@ namespace MeasureLengthDeviceNamespace
             // Проверяем, что BackgroundWorker не null
             if (dataCollector != null)
             {
+                disposed = true;
                 dataCollector.Dispose(); // Освобождаем ресурсы BackgroundWorker
             }
 

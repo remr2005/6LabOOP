@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Windows;
 using MeasureLengthDeviceNamespace;
 
@@ -12,6 +13,7 @@ namespace _5._1
         private IMeasuringDevice device;
         private Units unit = Units.Imperial;
         public MainWindow() => InitializeComponent();
+        private EventHandler newMeasurementTaken;
         /// <summary>
         /// Обработчик для createInstance_Click
         /// </summary>
@@ -38,6 +40,7 @@ namespace _5._1
             logs.Content = "Please make device";
             if (device != null) 
             { 
+
                 device.StartCollecting();
                 logs.Content = "Start Collecting";
             }
