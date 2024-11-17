@@ -17,6 +17,10 @@ namespace MeasureLengthDeviceNamespace
         private BackgroundWorker? dataCollector;
         private StreamWriter? loggingFileWriter;
         public event EventHandler? NewMeasurementTaken;
+        public event HeartBeatEventHandler HeartBeat;
+
+        // Интервал для HeartBeat
+        public int HeartBeatInterval { get; private set; }
 
         // Абстрактные методы для конкретных устройств
         public abstract decimal MetricValue();
