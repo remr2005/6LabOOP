@@ -1,4 +1,6 @@
-﻿namespace MeasureLengthDeviceNamespace
+﻿using System;
+
+namespace MeasureLengthDeviceNamespace
 {
     public interface IMeasuringDevice
     {
@@ -48,4 +50,16 @@
         /// </summary>
         string LoggingFileName { get; set; }
     }
+    interface IEventEnabledMeasuringDevice : IMeasuringDevice
+    {
+        event EventHandler NewMeasurementTaken;
+        // Событие, которое срабатывает при каждом новом измерении.
+
+        event HeartBeatEventHandler HeartBeat;
+        // Событие для сердечного ритма.
+
+        int HeartBeatInterval { get; }
+        // Только для чтения, интервал сердечного ритма - устанавливается в конструкторе.
+    }
+    public delegate void HeartBeatEventHandler(object sender, EventArgs e);
 }
