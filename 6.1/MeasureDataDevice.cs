@@ -6,7 +6,7 @@ using System.Timers;
 
 namespace MeasureLengthDeviceNamespace
 {
-    public abstract class MeasureDataDevice : IMeasuringDevice
+    public abstract class MeasureDataDevice : IEventEnabledMeasuringDevice
     {
         protected Units unitsToUse;
         protected int[] dataCaptured;
@@ -22,6 +22,10 @@ namespace MeasureLengthDeviceNamespace
         public abstract decimal MetricValue();
         public abstract decimal ImperialValue();
 
+        protected virtual void OnNewMeasurementTaken()
+        {
+            NewMeasurementTaken?.Invoke(this, EventArgs.Empty);
+        }
         public void StartCollecting()
         {
             controller = DeviceController.StartDevice(measurementType);
@@ -73,7 +77,7 @@ namespace MeasureLengthDeviceNamespace
         }
         private void dataCollector_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            NewMeasurementTaken?.Invoke(this, EventArgs.Empty);
+            OnNewMeasurementTaken();
         }
         public void Dispose()
         {
