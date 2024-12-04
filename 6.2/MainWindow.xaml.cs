@@ -108,6 +108,7 @@ namespace _5._1
             {
                 device.StopCollecting();
                 device.NewMeasurementTaken -= newMeasurementTaken;
+                device.HeartBeat -= heartBeatHandler;
                 logs.Content = $"Device stop collecting";
             }
         }
