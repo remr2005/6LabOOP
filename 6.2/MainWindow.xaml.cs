@@ -109,11 +109,6 @@ namespace _5._1
                 device.StopCollecting();
                 device.NewMeasurementTaken -= newMeasurementTaken;
                 logs.Content = $"Device stop collecting";
-                if (heartBeatHandler != null)
-                {
-                    device.HeartBeat -= heartBeatHandler;
-                    heartBeatHandler = null;
-                }
             }
         }
         /// <summary>
