@@ -49,6 +49,7 @@ namespace MeasureLengthDeviceNamespace
         /// Если имя файла журнала изменяется, закрывается текущий файл и создается новый.
         /// </summary>
         string LoggingFileName { get; set; }
+        void Dispose();
     }
     interface IEventEnabledMeasuringDevice : IMeasuringDevice
     {

@@ -108,7 +108,7 @@ namespace _5._1
             {
                 device.StopCollecting();
                 device.NewMeasurementTaken -= newMeasurementTaken;
-                device.HeartBeat -= heartBeatHandler;
+                //device.HeartBeat -= heartBeatHandler;
                 logs.Content = $"Device stop collecting";
             }
         }
@@ -125,6 +125,16 @@ namespace _5._1
                 StringBuilder res = new StringBuilder();
                 foreach (int i in device.GetRawData()) { res.Append($"{i} "); }
                 logs.Content = res.ToString();
+            }
+        }
+
+        private void Dispose_Click(object sender, RoutedEventArgs e)
+        {
+            logs.Content = "Please make device";
+            if (device != null)
+            {
+                device.Dispose();
+                logs.Content = "Dispose device";
             }
         }
     }

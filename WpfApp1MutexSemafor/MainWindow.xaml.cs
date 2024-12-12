@@ -17,6 +17,12 @@ namespace WpfApp1
             Console.WriteLine($"Phase {b.CurrentPhaseNumber} completed.");
         });
 
+        // Мьютекс для защиты доступа к координатам
+        private readonly Mutex mutex = new Mutex();
+
+        // Семафор для управления количеством потоков
+        private readonly Semaphore semaphore = new Semaphore(2, 2);
+
         public MainWindow()
         {
             InitializeComponent();
@@ -36,6 +42,8 @@ namespace WpfApp1
         private void StartSimulation()
         {
             isSimulationRunning = true;
+
+            // Запуск потоков
             Thread ball1Thread = new Thread(() => MoveBall(Ball1, ref ball1X, ref ball1Y, 5));
             Thread ball2Thread = new Thread(() => MoveBall(Ball2, ref ball2X, ref ball2Y, 3));
 
@@ -43,29 +51,45 @@ namespace WpfApp1
             ball2Thread.Start();
         }
 
-        private readonly object lockObject = new object(); // Объект для защиты координат
-
         private void MoveBall(Ellipse ball, ref double x, ref double y, int step)
         {
             for (int i = 0; i < 120; i++)
             {
-                // Защита координат с помощью lock
-                lock (lockObject)
+                // Запрос разрешения у семафора
+                semaphore.WaitOne();
+
+                try
                 {
-                    // Локальные копии координат
-                    double newX = x + step;
-                    double newY = y + step;
+                    // Блокировка мьютексом
+                    mutex.WaitOne();
 
-                    // Обновление UI в основном потоке
-                    Dispatcher.Invoke(() =>
+                    try
                     {
-                        Canvas.SetLeft(ball, newX);
-                        Canvas.SetTop(ball, newY);
-                    });
+                        // Локальные копии координат
+                        double newX = x + step;
+                        double newY = y + step;
 
-                    // Обновление исходных координат
-                    x = newX;
-                    y = newY;
+                        // Обновление UI в основном потоке
+                        Dispatcher.InvokeAsync(() =>
+                        {
+                            Canvas.SetLeft(ball, newX);
+                            Canvas.SetTop(ball, newY);
+                        });
+
+                        // Обновление исходных координат
+                        x = newX;
+                        y = newY;
+                    }
+                    finally
+                    {
+                        // Освобождение мьютекса
+                        mutex.ReleaseMutex();
+                    }
+                }
+                finally
+                {
+                    // Освобождение семафора
+                    semaphore.Release();
                 }
 
                 // Пауза для демонстрации
@@ -74,6 +98,7 @@ namespace WpfApp1
                 // Синхронизация потоков с помощью Barrier
                 barrier.SignalAndWait();
             }
+
             isSimulationRunning = false;
         }
     }

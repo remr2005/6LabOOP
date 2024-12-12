@@ -40,7 +40,9 @@ namespace WpfApp1
             Thread ball2Thread = new Thread(() => MoveBall(Ball2, ref ball2X, ref ball2Y, 3));
 
             ball1Thread.Start();
+            ball1Thread.Join();
             ball2Thread.Start();
+   
         }
 
         private readonly object lockObject = new object(); // Объект для защиты координат
@@ -70,9 +72,6 @@ namespace WpfApp1
 
                 // Пауза для демонстрации
                 Thread.Sleep(10);
-
-                // Синхронизация потоков с помощью Barrier
-                barrier.SignalAndWait();
             }
             isSimulationRunning = false;
         }

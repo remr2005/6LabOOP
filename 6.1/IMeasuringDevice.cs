@@ -55,11 +55,6 @@ namespace MeasureLengthDeviceNamespace
         event EventHandler NewMeasurementTaken;
         // Событие, которое срабатывает при каждом новом измерении.
 
-        event HeartBeatEventHandler HeartBeat;
-        // Событие для сердечного ритма.
-
-        int HeartBeatInterval { get; }
-        // Только для чтения, интервал сердечного ритма - устанавливается в конструкторе.
     }
     public delegate void HeartBeatEventHandler(object sender, EventArgs e);
 }

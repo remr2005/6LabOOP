@@ -41,17 +41,9 @@ namespace MeasureLengthDeviceNamespace
         /// </summary>
         public event EventHandler? NewMeasurementTaken;
         /// <summary>
-        /// Что это
-        /// </summary>
-        public event HeartBeatEventHandler HeartBeat;
-        /// <summary>
         /// Уничтожен объект или нет
         /// </summary>
         bool disposed = false;
-        /// <summary>
-        /// что это?
-        /// </summary>
-        public int HeartBeatInterval { get; private set; }
         /// <summary>
         /// Я это даже не использовал, ЗАЧЕМ ЭТО НУЖНО
         /// </summary>
@@ -97,7 +89,7 @@ namespace MeasureLengthDeviceNamespace
             }
         }
         /// <summary>
-        /// 
+        /// Врзвращает все что измерил
         /// </summary>
         /// <returns></returns>
         public int[] GetRawData()
@@ -105,7 +97,7 @@ namespace MeasureLengthDeviceNamespace
             return dataCaptured;
         }
         /// <summary>
-        /// 
+        /// Возвращает измерение
         /// </summary>
         private void GetMeasurements()
         {
@@ -119,7 +111,7 @@ namespace MeasureLengthDeviceNamespace
             dataCollector.RunWorkerAsync();
         }
         /// <summary>
-        /// захватывает инфу(это какой то ужас)
+        /// захватывает инфу
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

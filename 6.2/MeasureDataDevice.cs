@@ -6,10 +6,18 @@ using System.Timers;
 
 namespace MeasureLengthDeviceNamespace
 {
+    /// <summary>
+    /// Класс для HeartBeat
+    /// </summary>
     public class HeartBeatEventArgs : EventArgs
     {
+        /// <summary>
+        /// Время
+        /// </summary>
         public DateTime TimeStamp { get; set; }
-
+        /// <summary>
+        /// Текущее время
+        /// </summary>
         public HeartBeatEventArgs() : base()
         {
             TimeStamp = DateTime.Now;
@@ -96,17 +104,17 @@ namespace MeasureLengthDeviceNamespace
         /// </summary>
         bool disposed = false;
         /// <summary>
-        /// Я это даже не использовал, ЗАЧЕМ ЭТО НУЖНО
+        /// Метрический результат
         /// </summary>
         /// <returns></returns>
         public abstract decimal MetricValue();
         /// <summary>
-        /// Возвращает МЕтрический результат
+        /// Возвращает имперический результат
         /// </summary>
         /// <returns></returns>
         public abstract decimal ImperialValue();
         /// <summary>
-        /// Когда новая функция
+        /// При новом измерении
         /// </summary>
         protected virtual void OnNewMeasurementTaken()
         {
@@ -132,8 +140,11 @@ namespace MeasureLengthDeviceNamespace
             {
                 DeviceController.StopDevice();
                 controller = null;
-                loggingFileWriter?.WriteLine($"Time: {DateTime.Now}, Stop Collecting");
-                loggingFileWriter.Close();
+                try
+                {
+                    loggingFileWriter?.WriteLine($"Time: {DateTime.Now}, Stop Collecting");
+                    loggingFileWriter.Close();
+                } catch { }
                 if (dataCollector != null && dataCollector.IsBusy)
                 {
                     dataCollector.CancelAsync(); // Запрос на отмену
@@ -210,10 +221,18 @@ namespace MeasureLengthDeviceNamespace
                 disposed = true;
                 dataCollector.Dispose(); // Освобождаем ресурсы BackgroundWorker
             }
-
-            // Закрываем файл логов, если он открыт
-            loggingFileWriter?.WriteLine($"Time: {DateTime.Now}, Dispose");
-            loggingFileWriter?.Close();
+            // Останавливаем и освобождаем таймер heartbeat
+            if (heartBeatTimer != null)
+            {
+                heartBeatTimer.Stop();
+                heartBeatTimer.Dispose(); // Освобождаем ресурсы
+            }
+            try
+            {
+                // Закрываем файл логов, если он открыт
+                loggingFileWriter?.WriteLine($"Time: {DateTime.Now}, Dispose");
+                loggingFileWriter?.Close();
+            } catch { }
         }
         /// <summary>
         /// Путь до файла с логгированием
